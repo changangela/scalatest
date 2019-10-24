@@ -2224,7 +2224,7 @@ object ScalatestBuild {
   lazy val dottySettings = List(
     scalaVersion := dottyVersion,
     libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value)),
-    scalacOptions := List("-language:implicitConversions", "-noindent", "-Xprint-suspension", "-Yexplicit-nulls")
+    scalacOptions := List("-language:implicitConversions", "-noindent", "-Xprint-suspension", "-Yexplicit-nulls", "-Yjava-interop-dont-nullify-outermost")
   )
 }
 // set scalacOptions in (Compile, console) += "-Xlog-implicits"
