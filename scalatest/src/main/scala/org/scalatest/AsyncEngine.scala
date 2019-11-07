@@ -850,7 +850,7 @@ private[scalatest] sealed abstract class AsyncSuperEngine[T](concurrentBundleMod
   private[scalatest] def testTags(testName: String, theSuite: Suite): Set[String] = {
     // SKIP-SCALATESTJS,NATIVE-START
     val suiteTags = for { 
-      a <- theSuite.getClass.getAnnotations
+      a: Annotation <- theSuite.getClass.getAnnotations
       annotationClass = a.annotationType
       if annotationClass.isAnnotationPresent(classOf[TagAnnotation])
     } yield annotationClass.getName

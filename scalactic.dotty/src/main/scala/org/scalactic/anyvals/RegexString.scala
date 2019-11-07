@@ -125,10 +125,10 @@ private[scalactic] final class RegexString private (val value: String) extends A
     value.replaceFirst(regex, replacement)
 
   def split(regex: String): Array[String] =
-    value.split(regex)
+    value.split(regex).map(_.nn)
 
   def split(regex: String, limit: Int): Array[String] =
-    value.split(regex, limit)
+    value.split(regex, limit).map(_.nn)
 
   def startsWith(prefix: String): Boolean =
     value.startsWith(prefix)

@@ -33,10 +33,10 @@ object ObjectMeta {
 
   def objectMetaUsingJavaReflection(v: Any): ObjectMeta =
     new ObjectMeta {
-      lazy val privFields = v.getClass.getDeclaredFields.filter(!_.isAccessible).map(_.getName)
+      lazy val privFields = v.getClass.getDeclaredFields.map(_.nn).filter(!_.isAccessible).map(_.getName)
 
       lazy val fieldNames = {
-        v.getClass.getDeclaredMethods.filter { m =>
+        v.getClass.getDeclaredMethods.map(_.nn).filter { m =>
           // SKIP-DOTTY-START
           m.getParameterTypes.isEmpty && privFields.contains(m.getName)
           // SKIP-DOTTY-END

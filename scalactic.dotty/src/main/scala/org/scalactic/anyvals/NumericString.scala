@@ -541,7 +541,7 @@ final class NumericString private (val value: String) extends AnyVal {
    * @return         array of strings produced by splitting `NumericString` at every location matching supplied `regex`
    */
   def split(regex: String): Array[String] =
-    value.split(regex)
+    value.split(regex).map(_.nn)
 
   /**
    * Returns an array of strings produced by splitting `NumericString` at up to `limit` locations matching the supplied `regex`;
@@ -554,7 +554,7 @@ final class NumericString private (val value: String) extends AnyVal {
    * @return         array of strings produced by splitting `NumericString` at every location matching supplied `regex`, up to `limit` occurrences
    */
   def split(regex: String, limit: Int): Array[String] =
-    value.split(regex, limit)
+    value.split(regex, limit).map(_.nn)
 
   /**
    * Returns `true` if the `NumericString` content completely matches the supplied `prefix`, when both strings are aligned at their startpoints
