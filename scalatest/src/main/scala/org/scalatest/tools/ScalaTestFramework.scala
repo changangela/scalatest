@@ -18,6 +18,7 @@ package org.scalatest.tools
 import org.scalatest._
 import ArgsParser._
 import SuiteDiscoveryHelper._
+import java.lang.reflect.Constructor
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -430,7 +431,7 @@ Tags to include and exclude: -n "CheckinTests FunctionalTests" -l "SlowTests Net
               suiteClass.newInstance.asInstanceOf[Suite]
             else {
               val suiteClazz = wrapWithAnnotation.value
-              val constructorList = suiteClazz.getDeclaredConstructors()
+              val constructorList : Array[Constructor[_]] = suiteClazz.getDeclaredConstructors().map(_.nn)
               val constructor = constructorList.find { c => 
                   val types = c.getParameterTypes
                   types.length == 1 && types(0) == classOf[java.lang.Class[_]]

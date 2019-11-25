@@ -756,7 +756,7 @@ trait Suite extends Assertions with Serializable { thisSuite =>
    *     exists in this <code>Suite</code>
    */
   final def execute(
-    testName: String = null,
+    testName: String | Null = null,
     configMap: ConfigMap = ConfigMap.empty,
     color: Boolean = true,
     durations: Boolean = false,
@@ -2010,7 +2010,7 @@ used for test events like succeeded/failed, etc.
   def autoTagClassAnnotations(tags: Map[String, Set[String]], theSuite: Suite) = {
     // SKIP-SCALATESTJS,NATIVE-START
     val suiteTags = for {
-      a <- theSuite.getClass.getAnnotations
+      a <- theSuite.getClass.getAnnotations.map(_.nn)
       annotationClass = a.annotationType
       if annotationClass.isAnnotationPresent(classOf[TagAnnotation])
     } yield annotationClass.getName
@@ -2088,7 +2088,7 @@ used for test events like succeeded/failed, etc.
 
   // SKIP-SCALATESTJS,NATIVE-START
   def getMethodForTestName(theSuite: org.scalatest.Suite, testName: String): Method = {
-    val candidateMethods = theSuite.getClass.getMethods.filter(_.getName == Suite.simpleNameForTest(testName))
+    val candidateMethods = theSuite.getClass.getMethods.map(_.nn).filter(_.getName == Suite.simpleNameForTest(testName))
     val found =
       if (testMethodTakesAFixtureAndInformer(testName))
         candidateMethods.find(
@@ -2153,7 +2153,7 @@ used for test events like succeeded/failed, etc.
     }
 
     val testNameArray =
-      for (m <- theSuite.getClass.getMethods; if isTestMethod(m))
+      for (m <- theSuite.getClass.getMethods.map(_.nn); if isTestMethod(m))
         yield if (takesInformer(m)) m.getName + InformerInParens else m.getName
 
     val result = TreeSet.empty[String](EncodedOrdering) ++ testNameArray

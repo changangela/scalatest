@@ -25,7 +25,7 @@ private[scalatest] case class Fragment(text: String, ansiColor: AnsiColor) {
     if (!presentInColor || text.trim.isEmpty) text
     else {
       ("\n" * countLeadingEOLs(text)) +
-      text.split("\n").dropWhile(_.isEmpty).map(ansiColor.code + _ + ansiReset).mkString("\n") +
+      text.split("\n").map(_.nn).dropWhile(_.isEmpty).map(ansiColor.code + _ + ansiReset).mkString("\n") +
       ("\n" * countTrailingEOLs(text))
     }
 }

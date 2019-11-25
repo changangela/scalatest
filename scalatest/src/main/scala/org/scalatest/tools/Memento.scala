@@ -136,7 +136,7 @@ private[tools] object Memento {
   // Constructs a Memento object from a single-line string.
   //
   def fromString(str: String): Memento = {
-    val splits = str.split(" ")
+    val splits = str.split(" ").map(_.nn)
 
     if (splits.length != 4)
       throw new Exception("bad line format ["+ str +"]")

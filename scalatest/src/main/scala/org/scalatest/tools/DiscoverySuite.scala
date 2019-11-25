@@ -16,6 +16,7 @@
 package org.scalatest.tools
 
 import org.scalatest._
+import java.lang.reflect.Constructor
 import java.util.UUID
 import org.scalactic.Requirements._
 
@@ -66,7 +67,7 @@ private[scalatest] object DiscoverySuite {
         clazz.newInstance.asInstanceOf[Suite]
       else {
         val suiteClazz = wrapWithAnnotation.value
-        val constructorList = suiteClazz.getDeclaredConstructors()
+        val constructorList : Array[Constructor[_]] = suiteClazz.getDeclaredConstructors().map(_.nn)
         val constructor = constructorList.find { c => 
           val types = c.getParameterTypes
           types.length == 1 && types(0) == classOf[java.lang.Class[_]]

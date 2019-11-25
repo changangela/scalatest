@@ -21,6 +21,7 @@ import java.net.MalformedURLException
 import java.net.URLClassLoader
 import java.io.File
 import java.io.IOException
+import java.lang.reflect.Constructor
 import javax.swing.SwingUtilities
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.regex.Pattern
@@ -1447,7 +1448,7 @@ object Runner {
         clazz.newInstance.asInstanceOf[Suite]
       else {
         val suiteClazz = wrapWithAnnotation.value
-        val constructorList = suiteClazz.getDeclaredConstructors()
+        val constructorList : Array[Constructor[_]] = suiteClazz.getDeclaredConstructors().map(_.nn)
         val constructor = constructorList.find { c => 
           val types = c.getParameterTypes
           types.length == 1 && types(0) == classOf[java.lang.Class[_]]
@@ -1580,7 +1581,7 @@ object Runner {
         }
       }
 
-      new URLClassLoader(urlsList.toArray, classOf[Suite].getClassLoader)
+      new URLClassLoader(urlsList.toArray.asInstanceOf[Array[URL | Null]], classOf[Suite].getClassLoader)
     }
   }
 

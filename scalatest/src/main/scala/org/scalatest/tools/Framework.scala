@@ -22,6 +22,7 @@ import SuiteDiscoveryHelper._
 
 import scala.collection.JavaConverters._
 import java.io.{PrintWriter, StringWriter}
+import java.lang.reflect.Constructor
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
 import java.util.concurrent.{ExecutorService, Executors, LinkedBlockingQueue, ThreadFactory}
 
@@ -417,7 +418,7 @@ class Framework extends SbtFramework {
     
     def tags = 
       for { 
-        a <- suiteClass.getAnnotations
+        a <- suiteClass.getAnnotations.map(_.nn)
         annotationClass = a.annotationType
         if (annotationClass.isAnnotationPresent(classOf[TagAnnotation]) || annotationClass.isAssignableFrom(classOf[TagAnnotation])) 
       } yield {
@@ -439,7 +440,7 @@ class Framework extends SbtFramework {
             if (runnable) { // When it is runnable WrapWith is available, this will take precedence and this behavior will be consistent with Runner and the old ScalaTestFramework.
               val wrapWithAnnotation = suiteClass.getAnnotation(classOf[WrapWith])
               val suiteClazz = wrapWithAnnotation.value
-              val constructorList = suiteClazz.getDeclaredConstructors()
+              val constructorList : Array[Constructor[_]] = suiteClazz.getDeclaredConstructors().map(_.nn)
               val constructor = constructorList.find { c =>
                 val types = c.getParameterTypes
                 types.length == 1 && types(0) == classOf[java.lang.Class[_]]
@@ -708,7 +709,7 @@ class Framework extends SbtFramework {
           tracker,
           tagsToInclude,
           tagsToExclude,
-          td.selectors ++ autoSelectors,
+          (td.selectors ++ autoSelectors).map(_.nn),
           td.explicitlySpecified, 
           configMap,
           summaryCounter,

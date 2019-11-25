@@ -16,6 +16,7 @@
 package org.scalatest.tools
 
 import org.scalatest._
+import java.lang.reflect.Constructor
 import java.lang.reflect.Modifier
 import java.util.Enumeration
 import java.util.jar.JarFile
@@ -213,7 +214,7 @@ private[scalatest] object SuiteDiscoveryHelper {
     val wrapWithAnnotation = clazz.getAnnotation(classOf[WrapWith])
     if (wrapWithAnnotation != null) {
       val wrapperSuiteClazz = wrapWithAnnotation.value
-      val constructorList = wrapperSuiteClazz.getDeclaredConstructors()
+      val constructorList : Array[Constructor[_]] = wrapperSuiteClazz.getDeclaredConstructors().map(_.nn)
       constructorList.exists { c => 
         val types = c.getParameterTypes
         types.length == 1 && types(0) == classOf[java.lang.Class[_]]
@@ -294,13 +295,13 @@ private[scalatest] object SuiteDiscoveryHelper {
       if (!dir.isDirectory)
         throw new IllegalArgumentException
 
-      val subDirs = for (entry <- dir.listFiles.toList; if entry.isDirectory) yield entry
+      val subDirs = for (entry <- dir.listFiles.toList.map(_.nn); if entry.isDirectory) yield entry
       val fileLists: List[List[String]] = 
         for (subDir <- subDirs) 
           yield listFilesInDir(subDir, prependPrevName(prevName, subDir.getName))
 
       val files: List[String] =
-        for (entry <- dir.listFiles.toList; if !entry.isDirectory)
+        for (entry <- dir.listFiles.toList.map(_.nn); if !entry.isDirectory)
           yield prependPrevName(prevName, entry.getName)
 
       files ::: fileLists.flatMap(e => e)

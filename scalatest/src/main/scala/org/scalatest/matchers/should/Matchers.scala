@@ -5835,7 +5835,7 @@ org.scalatest.exceptions.TestFailedException: org.scalatest.Matchers$ResultOfCol
         }
         catch {
           case tfe: TestFailedException =>
-            indicateFailure(tfe.getMessage, tfe.cause, pos)
+            indicateFailure(tfe.getMessage.nn, tfe.cause, pos)
         }
       }
     }

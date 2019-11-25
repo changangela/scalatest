@@ -597,7 +597,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModMessa
           pos match {
             case Some(pos) => Some(LineInFile(pos.lineNumber, pos.fileName, Some(pos.filePathname)))
             case None =>
-              val stackTraceElements = Thread.currentThread().getStackTrace
+              val stackTraceElements = Thread.currentThread().getStackTrace.map(_.nn)
               getLineInFile(stackTraceElements, stackDepth)
           }
       }
@@ -639,7 +639,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModMessa
       pos match {
         case Some(pos) => Some(LineInFile(pos.lineNumber, pos.fileName, Some(pos.filePathname)))
         case None =>
-          val stackTraceElements = Thread.currentThread().getStackTrace
+          val stackTraceElements = Thread.currentThread().getStackTrace.map(_.nn)
           getLineInFile(stackTraceElements, stackDepth)
       }
     val newBranch = DescriptionBranch(Trunk, description, None, lineInFile)
@@ -684,7 +684,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModMessa
           pos match {
             case Some(pos) => Some(LineInFile(pos.lineNumber, pos.fileName, Some(pos.filePathname)))
             case None =>
-              val stackTraceElements = Thread.currentThread().getStackTrace
+              val stackTraceElements = Thread.currentThread().getStackTrace.map(_.nn)
               getLineInFile(stackTraceElements, stackDepth)
           }
       }
@@ -781,7 +781,7 @@ private[scalatest] sealed abstract class SuperEngine[T](concurrentBundleModMessa
   private[scalatest] def testTags(testName: String, theSuite: Suite): Set[String] = {
     // SKIP-SCALATESTJS,NATIVE-START
     val suiteTags = for { 
-      a <- theSuite.getClass.getAnnotations
+      a <- theSuite.getClass.getAnnotations.map(_.nn)
       annotationClass = a.annotationType
       if annotationClass.isAnnotationPresent(classOf[TagAnnotation])
     } yield annotationClass.getName
@@ -857,7 +857,7 @@ private[scalatest] class PathEngine(concurrentBundleModMessageFun: => String, si
   // Used in each instance to track the paths of things encountered, so can figure out
   // the next path. Each instance must use their own copies of currentPath and usedPathSet.
   def getNextPath() = {
-    var next: List[Int] = null
+    var next: List[Int] | Null = null
     var count = 0
     while (next == null) {
       val candidate = currentPath ::: List(count)
@@ -868,7 +868,7 @@ private[scalatest] class PathEngine(concurrentBundleModMessageFun: => String, si
       else
         count += 1
     }
-    next
+    next.nn
   }
 
   /*

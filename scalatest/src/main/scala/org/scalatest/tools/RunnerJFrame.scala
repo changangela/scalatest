@@ -319,7 +319,7 @@ private[scalatest] class RunnerJFrame(
               val (grayStackTraceElements, blackStackTraceElements) =
                 holder.throwable match {
                   case Some(throwable) =>
-                    val stackTraceElements = throwable.getStackTrace.toList
+                    val stackTraceElements = throwable.getStackTrace.map(_.nn).toList
                     throwable match {
                       case tfe: TestFailedException =>
                         (stackTraceElements.take(tfe.failedCodeStackDepth), stackTraceElements.drop(tfe.failedCodeStackDepth))
@@ -356,7 +356,7 @@ private[scalatest] class RunnerJFrame(
                 </table>
                 <table>
                 <tr valign="top">
-                <td align="left" colspan="2">{ getHTMLForStackTrace(cause.getStackTrace.toList) }</td>
+                <td align="left" colspan="2">{ getHTMLForStackTrace(cause.getStackTrace.map(_.nn).toList) }</td>
                 </tr>
                 </table> &+ getHTMLForCause(cause)
               }
