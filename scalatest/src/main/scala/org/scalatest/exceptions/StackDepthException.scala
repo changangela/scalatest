@@ -184,13 +184,13 @@ abstract class StackDepthException(
    *
    * @return the detail message string of this <code>StackDepthException</code> instance (which may be <code>null</code>).
    */
-  override def getMessage: String | Null = message.orNull
+  override def getMessage= message.orNull.asInstanceOf[String]
 
   /*
   * Throws <code>IllegalStateException</code>, because <code>StackDepthException</code>s are
   * always initialized with a cause passed to the constructor of superclass <code>RuntimeException</code>.
   */
-  override final def initCause(throwable: Throwable): Throwable = { throw new IllegalStateException }
+  override final def initCause(throwable: Throwable | Null): Throwable = { throw new IllegalStateException }
 
   /**
    * Indicates whether this object can be equal to the passed object.

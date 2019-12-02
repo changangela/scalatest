@@ -186,7 +186,7 @@ private[scalatest] class RunnerJFrame(
     runJButton.setMnemonic(KeyEvent.VK_R)
     runJButton.addActionListener(
       new ActionListener() {
-        def actionPerformed(ae: ActionEvent): Unit = {
+        def actionPerformed(ae: ActionEvent | Null): Unit = {
           currentState = currentState.runButtonPressed(RunnerJFrame.this)
         }
       }
@@ -269,7 +269,7 @@ private[scalatest] class RunnerJFrame(
     reporterJPanel.add(eventsDetailsPanel, BorderLayout.CENTER)
     eventsJList.addListSelectionListener(
       new ListSelectionListener() {
-        def valueChanged(e: ListSelectionEvent): Unit = {
+        def valueChanged(e: ListSelectionEvent | Null): Unit = {
 
           val holder: EventHolder = eventsJList.getSelectedValue().asInstanceOf[EventHolder]
 
@@ -579,7 +579,7 @@ private[scalatest] class RunnerJFrame(
 
     rerunJButton.addActionListener(
       new ActionListener() {
-        def actionPerformed(ae: ActionEvent): Unit = {
+        def actionPerformed(ae: ActionEvent | Null): Unit = {
           currentState = currentState.rerunButtonPressed(RunnerJFrame.this)
         }
       }
@@ -611,7 +611,7 @@ private[scalatest] class RunnerJFrame(
     exitSemaphore.acquire()
     addWindowListener(
       new WindowAdapter {
-        override def windowClosed(e: WindowEvent): Unit = { exitSemaphore.release() }
+        override def windowClosed(e: WindowEvent | Null): Unit = { exitSemaphore.release() }
       }
     )
 
@@ -648,7 +648,7 @@ private[scalatest] class RunnerJFrame(
     scalaTestMenu.add(aboutItem)
     aboutItem.addActionListener(
       new ActionListener() {
-        def actionPerformed(ae: ActionEvent): Unit = {
+        def actionPerformed(ae: ActionEvent | Null): Unit = {
           val location: Point = getLocation()
           location.x += 20
           location.y += 6
@@ -665,7 +665,7 @@ private[scalatest] class RunnerJFrame(
     scalaTestMenu.add(exitItem)
     exitItem.addActionListener(
       new ActionListener() {
-        def actionPerformed(ae: ActionEvent): Unit = {
+        def actionPerformed(ae: ActionEvent | Null): Unit = {
           dispose()
           // Only exit if started from main(), not run(). If starting from run(),
           // we want to return a pass/fail status from run(). Actually, if we
@@ -689,7 +689,7 @@ private[scalatest] class RunnerJFrame(
     viewMenu.add(runsFailuresItem)
     runsFailuresItem.addActionListener(
       new ActionListener() {
-        def actionPerformed(ae: ActionEvent): Unit = {
+        def actionPerformed(ae: ActionEvent | Null): Unit = {
           viewOptions = runsAndFailures intersect eventTypesToCollect
           updateViewOptionsAndEventsList()
         }
@@ -701,7 +701,7 @@ private[scalatest] class RunnerJFrame(
     viewMenu.add(allEventsItem)
     allEventsItem.addActionListener(
       new ActionListener() {
-        def actionPerformed(ae: ActionEvent): Unit = {
+        def actionPerformed(ae: ActionEvent | Null): Unit = {
           viewOptions = eventTypesToCollect
           updateViewOptionsAndEventsList()
         }
@@ -746,9 +746,9 @@ private[scalatest] class RunnerJFrame(
 
       val itemAction: AbstractAction =
         new AbstractAction(menuItemText) {
-          def actionPerformed(ae: ActionEvent): Unit = {
+          def actionPerformed(ae: ActionEvent | Null): Unit = {
 
-            val checkBox: JCheckBoxMenuItem = ae.getSource().asInstanceOf[JCheckBoxMenuItem]
+            val checkBox: JCheckBoxMenuItem = ae.nn.getSource().asInstanceOf[JCheckBoxMenuItem]
             val option = getValue("option").asInstanceOf[EventToPresent]
 
             if (viewOptions.contains(option))

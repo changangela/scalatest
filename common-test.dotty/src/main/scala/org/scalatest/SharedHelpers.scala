@@ -1769,7 +1769,9 @@ object SharedHelpers extends Assertions with LineNumberHelper {
   // This gives a comparator that compares based on the value in the passed in order map
   private def orderMapComparator[T](orderMap: Map[T, Int]): java.util.Comparator[T] =
     new java.util.Comparator[T] {
-      def compare(x: T, y: T): Int = {
+      def compare(_x: T | Null, _y: T | Null): Int = {
+          val x = _x.nn
+          val y = _y.nn
           // When both x and y is defined in order map, use its corresponding value to compare (which in usage below, is the index of the insertion order)
           if (orderMap.get(x).isDefined && orderMap.get(y).isDefined)
             orderMap(x) compare orderMap(y)
@@ -1802,18 +1804,18 @@ object SharedHelpers extends Assertions with LineNumberHelper {
   def sortedSet[T](elements: T*): SortedSet[T] = {
     val orderMap = Map.empty[T, Int] ++ elements.zipWithIndex
     val comparator = orderMapComparator(orderMap)
-    implicit val ordering: Ordering[T] = new Ordering[T] {
-      def compare(x: T, y: T): Int = comparator.compare(x, y)
-    }
+    implicit val ordering: Ordering[T] = (new Ordering[T | Null] {
+      def compare(x: T | Null, y: T | Null): Int = comparator.compare(x, y)
+    }).asInstanceOf[Ordering[T]]
     SortedSet.empty[T] ++ elements
   }
 
   def sortedMap[K, V](elements: (K, V)*): SortedMap[K, V] = {
     val orderMap = Map.empty[K, Int] ++ elements.map(_._1).zipWithIndex
     val comparator = orderMapComparator(orderMap)
-    implicit val ordering: Ordering[K]  = new Ordering[K] {
-      def compare(x: K, y: K): Int = comparator.compare(x, y)
-    }
+    implicit val ordering: Ordering[K]  = (new Ordering[K | Null] {
+      def compare(x: K | Null, y: K | Null): Int = comparator.compare(x, y)
+    }).asInstanceOf[Ordering[K]]
     SortedMap.empty[K, V] ++ elements
   }
 

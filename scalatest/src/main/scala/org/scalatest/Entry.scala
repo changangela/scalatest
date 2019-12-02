@@ -39,7 +39,7 @@ package org.scalatest
  * @param value the value of this entry
  */
 // SKIP-SCALATESTJS,NATIVE-START
-case class Entry[K, V](key: K, value: V) extends java.util.Map.Entry[K, V] {
+case class Entry[K, V](key: K | Null, value: V | Null) extends java.util.Map.Entry[K, V] {
 // SKIP-SCALATESTJS,NATIVE-END
 //SCALATESTJS,NATIVE-ONLY case class Entry[K, V](key: K, value: V) {
 
@@ -48,21 +48,21 @@ case class Entry[K, V](key: K, value: V) extends java.util.Map.Entry[K, V] {
    *
    * @return the key corresponding to this entry
    */
-  def getKey: K = key
+  def getKey: K = key.asInstanceOf[K]
 
   /**
    * Returns the value corresponding to this entry.
    *
    * @return the value corresponding to this entry 
    */
-  def getValue: V = value
+  def getValue: V = value.asInstanceOf[V]
 
   /**
    * Throws <code>UnsupportedOperationException</code>.
    *
    * @throws UnsupportedOperationException unconditionally
    */
-  def setValue(v: V): V = throw new UnsupportedOperationException
+  def setValue(v: V | Null): V = throw new UnsupportedOperationException
 
   /**
    * Compares the specified object with this entry for equality.

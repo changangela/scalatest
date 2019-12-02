@@ -82,11 +82,12 @@ private[scalatest] class ColorBar extends JPanel {
     repaint()
   }
 
-  override def update(g: Graphics): Unit = {
+  override def update(g: Graphics | Null): Unit = {
     paint(g)
   }
 
-  override def paint(g: Graphics): Unit = {
+  override def paint(_g: Graphics | Null): Unit = {
+    val g = _g.nn
 
     val dim: Dimension = getSize()
 

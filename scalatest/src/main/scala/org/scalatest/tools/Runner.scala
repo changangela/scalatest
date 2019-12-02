@@ -1318,7 +1318,7 @@ object Runner {
             val threadFactory =
               new ThreadFactory {
                 val defaultThreadFactory = Executors.defaultThreadFactory
-                def newThread(runnable: Runnable): Thread = {
+                def newThread(runnable: Runnable | Null): Thread = {
                   val thread = defaultThreadFactory.newThread(runnable)
                   thread.setName("ScalaTest-" + atomicThreadCounter.incrementAndGet())
                   thread
