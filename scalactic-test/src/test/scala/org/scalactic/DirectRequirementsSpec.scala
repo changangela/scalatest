@@ -4783,7 +4783,7 @@ class DirectRequirementsSpec extends FunSpec with OptionValues {
 
     it("should throw NullArgumentException with correct message when one of passed parameters through object property is null") {
       class AClass {
-        val aNull: String = null
+        val aNull: String | Null = null
       }
       val aClass = new AClass
       val e = intercept[NullArgumentException] {
@@ -4794,7 +4794,7 @@ class DirectRequirementsSpec extends FunSpec with OptionValues {
 
     it("should throw NullArgumentException with correct message when one of passed parameters through object method call is null") {
       class AClass {
-        def returnNull: String = null
+        def returnNull: String | Null = null
       }
       val aClass = new AClass
       val e = intercept[NullArgumentException] {
@@ -4804,7 +4804,7 @@ class DirectRequirementsSpec extends FunSpec with OptionValues {
     }
 
     it("should throw NullArgumentException with correct message when one of passed parameters through method call is null") {
-      def returnNull: String = null
+      def returnNull: String | Null = null
       val e = intercept[NullArgumentException] {
         org.scalactic.Requirements.requireNonNull(prefix, returnNull, suffix)
       }

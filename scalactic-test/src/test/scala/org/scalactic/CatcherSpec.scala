@@ -33,7 +33,7 @@ class CatcherSpec extends UnitSpec {
   }
 
   it should "be usable as an extractor for catching exceptions" in {
-    val InternalServerError = Catcher { case dbae: DBAccessException => dbae.getMessage == "500: Internal Server Error" }
+    val InternalServerError = Catcher {((x : Throwable) => x match {case dbae: DBAccessException => dbae.getMessage == "500: Internal Server Error"}).asInstanceOf[PartialFunction[Throwable, Boolean]] }
     try throw new DBAccessException(msg500)
     catch {
       case InternalServerError(e) =>
@@ -52,7 +52,7 @@ class CatcherSpec extends UnitSpec {
   }
 
   it should "be usable as an extractor for detecting exceptions in Failed outcomes in withFixtures" in {
-    val InternalServerError = Catcher { case dbae: DBAccessException => dbae.getMessage == "500: Internal Server Error" }
+    val InternalServerError = Catcher {((x : Throwable) => x match {case dbae: DBAccessException => dbae.getMessage == "500: Internal Server Error"}).asInstanceOf[PartialFunction[Throwable, Boolean]] }
     val outcome1: Outcome = Failed(new DBAccessException(msg500))
     outcome1 match {
       case Failed(InternalServerError(e)) =>
