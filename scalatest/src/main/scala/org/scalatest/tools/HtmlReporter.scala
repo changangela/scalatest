@@ -781,7 +781,7 @@ private[scalatest] class HtmlReporter(
     
     def displayErrorMessage(errorMessage: String) = {
       // scala automatically change <br /> to <br></br>, which will cause 2 line breaks, use unparsedXml("<br />") to solve it.
-      val messageLines = errorMessage.split("\n")
+      val messageLines = errorMessage.split("\n").map(_.nn)
       if (messageLines.size > 1)
         messageLines.map(line => <span>{ xmlContent(line) }{ unparsedXml("<br />") }</span>)
       else
@@ -810,7 +810,7 @@ private[scalatest] class HtmlReporter(
         </table>
         <table>
           <tr valign="top">
-            <td align="left" colspan="2">{ getHTMLForStackTrace(cause.getStackTrace.toList) }</td>
+            <td align="left" colspan="2">{ getHTMLForStackTrace(cause.getStackTrace.map(_.nn).toList) }</td>
           </tr>
         </table> &+ getHTMLForCause(cause)
       }
@@ -820,7 +820,7 @@ private[scalatest] class HtmlReporter(
     val (grayStackTraceElements, blackStackTraceElements) =
       throwable match {
         case Some(throwable) =>
-          val stackTraceElements = throwable.getStackTrace.toList
+          val stackTraceElements = throwable.getStackTrace.map(_.nn).toList
           throwable match {
             case sde: exceptions.StackDepthException =>
               (stackTraceElements.take(sde.failedCodeStackDepth), stackTraceElements.drop(sde.failedCodeStackDepth))

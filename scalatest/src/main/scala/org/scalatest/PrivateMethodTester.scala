@@ -166,7 +166,7 @@ trait PrivateMethodTester {
 
         val isInstanceMethod = !Modifier.isStatic(m.getModifiers())
         val simpleName = m.getName
-        val paramTypes = m.getParameterTypes
+        val paramTypes: Seq[Class[_]] = m.getParameterTypes.map(_.nn)
         val isPrivate = Modifier.isPrivate(m.getModifiers())
 
         // The AnyVals must go in as Java wrapper types. But the type is still Any, so this needs to be converted
@@ -240,7 +240,7 @@ trait PrivateMethodTester {
       // Store in an array, because may have both isEmpty and empty, in which case I
       // will throw an exception.
       val methodArray =
-        for (m <- target.getClass.getDeclaredMethods; if isMethodToInvoke(m))
+        for (m <- target.getClass.getDeclaredMethods.map(_.nn); if isMethodToInvoke(m))
           yield m
   
       if (methodArray.length == 0)

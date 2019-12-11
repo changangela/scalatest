@@ -71,8 +71,8 @@ class AssertionsSpec extends AnyFunSpec {
       }
     }
     it("should compare nulls in a satisfying manner") {
-      val n1: String = null
-      val n2: String = null
+      val n1: String | Null = null
+      val n2: String | Null = null
       assert(n1 === n2)
       intercept[TestFailedException] {
         assert(n1 === "hi")
@@ -6599,8 +6599,8 @@ class AssertionsSpec extends AnyFunSpec {
       }
     }
     it("should compare nulls in a satisfying manner") {
-      val n1: String = null
-      val n2: String = null
+      val n1: String | Null = null
+      val n2: String | Null = null
       assertResult(n1) { n2 }
       intercept[TestFailedException] {
         assertResult(n1) { "hi" }
@@ -6668,8 +6668,8 @@ class AssertionsSpec extends AnyFunSpec {
       }
     }
     it("should compare nulls in a satisfying manner") {
-      val n1: String = null
-      val n2: String = null
+      val n1: String | Null = null
+      val n2: String | Null = null
       assertResult(n1, "a clue") { n2 }
       intercept[TestFailedException] {
         assertResult(n1, "a clue") { "hi" }

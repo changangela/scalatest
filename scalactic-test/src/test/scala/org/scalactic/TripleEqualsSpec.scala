@@ -32,7 +32,7 @@ class TripleEqualsSpec extends FunSpec with NonImplicitAssertions {
   val sub1: Sub = new Sub(1)
   val super2: Super = new Super(2)
   val sub2: Sub = new Sub(2)
-  val nullSuper: Super = null
+  val nullSuper: Super | Null = null
 
   describe("the custom equality === operator") {
 

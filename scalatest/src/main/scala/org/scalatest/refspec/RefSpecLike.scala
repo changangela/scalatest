@@ -65,7 +65,7 @@ trait RefSpecLike extends TestSuite with Informing with Notifying with Alerting 
         
         def getMethodTags(o: AnyRef, methodName: String) =
           for {
-            a <- getMethod(o, methodName).getDeclaredAnnotations
+            a <- getMethod(o, methodName).getDeclaredAnnotations.map(_.nn)
             annotationClass = a.annotationType
             if annotationClass.isAnnotationPresent(classOf[TagAnnotation])
           } yield annotationClass.getName
@@ -100,7 +100,7 @@ trait RefSpecLike extends TestSuite with Informing with Notifying with Alerting 
         }
         
         def register(o: AnyRef): Unit = {
-          val testMethods = o.getClass.getMethods.filter(isTestMethod(_)).sorted(MethodNameEncodedOrdering)
+          val testMethods = o.getClass.getMethods.map(_.nn).filter(isTestMethod(_)).sorted(MethodNameEncodedOrdering)
           
           testMethods.foreach { m =>
             val scope = isScopeMethod(o, m)

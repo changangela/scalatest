@@ -90,7 +90,7 @@ trait StackDepth { this: Throwable =>
   }
 
   private def stackTraceElement: Option[StackTraceElement] = {
-    val stackTrace = getStackTrace()
+    val stackTrace = getStackTrace().map(_.nn)
     position match {
       case Some(pos) => stackTrace.find(e => StackDepthExceptionHelper.isMatch(e, pos))
       case None =>

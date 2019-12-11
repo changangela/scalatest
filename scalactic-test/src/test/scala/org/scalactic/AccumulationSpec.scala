@@ -30,7 +30,7 @@ class AccumulationSpec extends UnitSpec with Accumulation with TypeCheckedTriple
   def parseDate(in: String): Date Or One[ErrorMessage] = {
     val regex = "\\d\\d\\d\\d-\\d\\d?-\\d\\d?".r
     if (regex.pattern.matcher(in).matches()) {
-      val tokens = in.split("-")
+      val tokens = in.split("-").map(_.nn)
       val year = tokens(0).toInt
       val month = tokens(1).toInt
       val dateInMonth = tokens(2).toInt
@@ -46,7 +46,7 @@ class AccumulationSpec extends UnitSpec with Accumulation with TypeCheckedTriple
   }
 
   def parseAddress(in: String): List[String] Or One[ErrorMessage] = {
-    val address = in.split(",\\s*")
+    val address = in.split(",\\s*").map(_.nn)
     if (address.length > 1) Good(address.toList)
     else Bad(One(s"An address needs to have a street and a city, separated by a comma; found [$in]"))
   }

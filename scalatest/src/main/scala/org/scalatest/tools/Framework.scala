@@ -22,6 +22,7 @@ import SuiteDiscoveryHelper._
 
 import scala.collection.JavaConverters._
 import java.io.{PrintWriter, StringWriter}
+import java.lang.reflect.Constructor
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
 import java.util.concurrent.{ExecutorService, Executors, LinkedBlockingQueue, ThreadFactory}
 
@@ -224,7 +225,7 @@ class Framework extends SbtFramework {
       new AnnotatedFingerprint {
         def annotationName = "org.scalatest.WrapWith"
         def isModule = false
-      })
+      }).asInstanceOf[Array[Fingerprint | Null]]
       
   private def runSuite(
     taskDefinition: TaskDef,
@@ -415,9 +416,9 @@ class Framework extends SbtFramework {
     lazy val shouldDiscover = 
       taskDefinition.explicitlySpecified || ((accessible || runnable) && isDiscoverableSuite(suiteClass))
     
-    def tags = 
+    def tags = (
       for { 
-        a <- suiteClass.getAnnotations
+        a <- suiteClass.getAnnotations.map(_.nn)
         annotationClass = a.annotationType
         if (annotationClass.isAnnotationPresent(classOf[TagAnnotation]) || annotationClass.isAssignableFrom(classOf[TagAnnotation])) 
       } yield {
@@ -430,16 +431,17 @@ class Framework extends SbtFramework {
           annotationClass.getName
         else
           value
-      }
+      }).asInstanceOf[Array[String | Null]]
     
-    def execute(eventHandler: EventHandler, loggers: Array[Logger]) = {
+    def execute(eventHandler: EventHandler | Null, _loggers: Array[Logger | Null] | Null) = {
+      val loggers = _loggers.nn.map(_.nn)
       if (accessible || runnable) {
         val suite =
           try {
             if (runnable) { // When it is runnable WrapWith is available, this will take precedence and this behavior will be consistent with Runner and the old ScalaTestFramework.
               val wrapWithAnnotation = suiteClass.getAnnotation(classOf[WrapWith])
               val suiteClazz = wrapWithAnnotation.value
-              val constructorList = suiteClazz.getDeclaredConstructors()
+              val constructorList : Array[Constructor[_]] = suiteClazz.getDeclaredConstructors().map(_.nn)
               val constructor = constructorList.find { c =>
                 val types = c.getParameterTypes
                 types.length == 1 && types(0) == classOf[java.lang.Class[_]]
@@ -490,7 +492,7 @@ class Framework extends SbtFramework {
           loader,
           suiteSortingReporter,
           tracker,
-          eventHandler,
+          eventHandler.nn,
           tagsToInclude,
           tagsToExclude,
           selectors,
@@ -511,7 +513,7 @@ class Framework extends SbtFramework {
           presentReminderWithFullStackTraces,
           presentReminderWithoutCanceledTests,
           execService
-        )
+        ).asInstanceOf[Array[Task | Null]]
       }
        else 
          throw new IllegalArgumentException("Class " + taskDefinition.fullyQualifiedName + " is neither accessible accesible org.scalatest.Suite nor runnable.")
@@ -685,7 +687,7 @@ class Framework extends SbtFramework {
     val threadFactory =
       new ThreadFactory {
         val defaultThreadFactory = Executors.defaultThreadFactory
-        def newThread(runnable: Runnable): Thread = {
+        def newThread(runnable: Runnable | Null): Thread = {
           val thread = defaultThreadFactory.newThread(runnable)
           thread.setName("ScalaTest-" + atomicThreadCounter.incrementAndGet())
           thread
@@ -708,7 +710,7 @@ class Framework extends SbtFramework {
           tracker,
           tagsToInclude,
           tagsToExclude,
-          td.selectors ++ autoSelectors,
+          (td.selectors ++ autoSelectors).map(_.nn),
           td.explicitlySpecified, 
           configMap,
           summaryCounter,
@@ -737,12 +739,14 @@ class Framework extends SbtFramework {
         paths.exists(path => td.fullyQualifiedName.startsWith(path) && td.fullyQualifiedName.substring(path.length).lastIndexOf('.') <= 0)
       }
       
-    def tasks(taskDefs: Array[TaskDef]): Array[Task] = 
-      for { 
+    def tasks(_taskDefs: Array[TaskDef | Null] | Null): Array[Task | Null] = {
+      val taskDefs = _taskDefs.nn.map(_.nn)
+      for {
         taskDef <- if (wildcard.isEmpty && membersOnly.isEmpty) taskDefs else (filterWildcard(wildcard, taskDefs) ++ filterMembersOnly(membersOnly, taskDefs)).distinct
         task = createTask(taskDef)
         if task.shouldDiscover
       } yield task
+    }
     
     def done = {
       if (!isDone.getAndSet(true)) {
@@ -791,16 +795,17 @@ class Framework extends SbtFramework {
         throw new IllegalStateException("done method is called twice")
     }
 
-    def args = runArgs
+    def args = runArgs.asInstanceOf[Array[String | Null]]
 
-    def remoteArgs: Array[String] = {
+    def remoteArgs: Array[String | Null] = {
       import org.scalatest.events._
 import java.io.{ObjectInputStream, ObjectOutputStream}
 import java.net.{ServerSocket, InetAddress}
 
       class SkeletonObjectInputStream(in: java.io.InputStream, loader: ClassLoader) extends ObjectInputStream(in) {
 
-        override def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
+        override def resolveClass(_desc: java.io.ObjectStreamClass | Null): Class[_] = {
+          val desc = _desc.nn
           try {
             val name = desc.getName
             Class.forName(name, false, loader);
@@ -894,7 +899,7 @@ import java.net.{ServerSocket, InetAddress}
       val thread = new Thread(skeleton)
       thread.start()
       serverThread.set(Some(thread))
-      Array("127.0.0.1", skeleton.port.toString)
+      Array("127.0.0.1", skeleton.port.toString).asInstanceOf[Array[String | Null]]
       // Array(InetAddress.getLocalHost.getHostAddress, skeleton.port.toString)
     }
   }
@@ -932,7 +937,10 @@ import java.net.{ServerSocket, InetAddress}
    * @return a <code>Runner</code> implementation representing the newly started run to run ScalaTest's tests.
    * @throws IllegalArgumentException when invalid or unsupported argument is passed
    */
-  def runner(args: Array[String], remoteArgs: Array[String], testClassLoader: ClassLoader): SbtRunner = {
+  def runner(_args: Array[String | Null] | Null, _remoteArgs: Array[String | Null] | Null, _testClassLoader: ClassLoader | Null): SbtRunner = {
+    val args = _args.nn.map(_.nn)
+    val remoteArgs = _remoteArgs.nn.map(_.nn)
+    val testClassLoader = _testClassLoader.nn
 
     val ParsedArgs(
       runpathArgs,

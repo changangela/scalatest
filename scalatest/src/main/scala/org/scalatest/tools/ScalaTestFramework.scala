@@ -18,6 +18,7 @@ package org.scalatest.tools
 import org.scalatest._
 import ArgsParser._
 import SuiteDiscoveryHelper._
+import java.lang.reflect.Constructor
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -117,7 +118,7 @@ class ScalaTestFramework extends SbtFramework {
         def annotationName = "org.scalatest.WrapWith"
         def isModule = false
       }
-    )
+    ).asInstanceOf[Array[Fingerprint | Null]]
     
   private[scalatest] object RunConfig {
 
@@ -315,8 +316,8 @@ class ScalaTestFramework extends SbtFramework {
    * Returns an <code>org.scalatools.testing.Runner</code> that will load test classes via the passed <code>testLoader</code>
    * and direct output from running the tests to the passed array of <code>Logger</code>s.
    */
-  def testRunner(testLoader: ClassLoader, loggers: Array[Logger]) = {
-    new ScalaTestRunner(testLoader, loggers)
+  def testRunner(testLoader: ClassLoader | Null, loggers: Array[Logger | Null] | Null) = {
+    new ScalaTestRunner(testLoader.nn, loggers.nn.map(_.nn))
   }
   
   private[scalatest] class SbtLogInfoReporter(
@@ -410,13 +411,15 @@ Tags to include and exclude: -n "CheckinTests FunctionalTests" -l "SlowTests Net
     private def filterMembersOnly(paths: List[String], testClassName: String): Boolean =
       paths.exists(path => testClassName.startsWith(path) && testClassName.substring(path.length ).lastIndexOf('.') <= 0)
       
-    def run(testClassName: String, fingerprint: Fingerprint, eventHandler: EventHandler, args: Array[String]): Unit = {
+    def run(_testClassName: String | Null, fingerprint: Fingerprint | Null, _eventHandler: EventHandler | Null, args: Array[String | Null] | Null): Unit = {
+      val testClassName = _testClassName.nn
+      val eventHandler = _eventHandler.nn
       try {
         RunConfig.increaseLatch()
         val suiteClass = Class.forName(testClassName, true, testLoader)
         //println("sbt args: " + args.toList)
         if ((isAccessibleSuite(suiteClass) || isRunnable(suiteClass)) && isDiscoverableSuite(suiteClass)) {
-          val (reporter, filter, configMap, membersOnly, wildcard, testSortingReporterTimeout) = RunConfig.getConfigurations(args, loggers, eventHandler, testLoader)
+          val (reporter, filter, configMap, membersOnly, wildcard, testSortingReporterTimeout) = RunConfig.getConfigurations(args.nn.map(_.nn), loggers, eventHandler, testLoader)
           
           if ((wildcard.isEmpty && membersOnly.isEmpty) || filterWildcard(wildcard, testClassName) || filterMembersOnly(membersOnly, testClassName)) {
           
@@ -430,7 +433,7 @@ Tags to include and exclude: -n "CheckinTests FunctionalTests" -l "SlowTests Net
               suiteClass.newInstance.asInstanceOf[Suite]
             else {
               val suiteClazz = wrapWithAnnotation.value
-              val constructorList = suiteClazz.getDeclaredConstructors()
+              val constructorList : Array[Constructor[_]] = suiteClazz.getDeclaredConstructors().map(_.nn)
               val constructor = constructorList.find { c => 
                   val types = c.getParameterTypes
                   types.length == 1 && types(0) == classOf[java.lang.Class[_]]
@@ -499,7 +502,7 @@ Tags to include and exclude: -n "CheckinTests FunctionalTests" -l "SlowTests Net
             def testName = tn
             def description = tn
             def result = r
-            def error = e getOrElse null
+            def error = (e getOrElse null).asInstanceOf[Throwable]
           }
         )
       }

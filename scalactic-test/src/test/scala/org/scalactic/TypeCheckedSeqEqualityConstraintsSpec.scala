@@ -32,7 +32,7 @@ class TypeCheckedSeqEqualityConstraintsSpec extends FunSpec with NonImplicitAsse
   val sub1: Sub = new Sub(1)
   val super2: Super = new Super(2)
   val sub2: Sub = new Sub(2)
-  val nullSuper: Super = null
+  val nullSuper: Super | Null = null
 
   case class Fruit(name: String)
   class Apple extends Fruit("apple")

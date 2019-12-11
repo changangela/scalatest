@@ -140,7 +140,7 @@ private[scalatest] object StackDepthExceptionHelper extends Serializable {
   }
 
   def getStackDepthFun(fileName: String, methodName: String, adjustment: Int = 0): (StackDepthException => Int) = { sde =>
-    getStackDepth(sde.getStackTrace, fileName, methodName, adjustment)
+    getStackDepth(sde.getStackTrace.map(_.nn), fileName, methodName, adjustment)
   }
 
   def isMatch(ele: StackTraceElement, pos: source.Position): Boolean =
@@ -152,7 +152,7 @@ private[scalatest] object StackDepthExceptionHelper extends Serializable {
   }
 
   def getStackDepthFun(pos: source.Position): (StackDepthException => Int) = { sde =>
-    getStackDepth(sde.getStackTrace, pos)
+    getStackDepth(sde.getStackTrace.map(_.nn), pos)
   }
 
   def getFailedCodeFileName(stackTraceElement: StackTraceElement): Option[String] = {

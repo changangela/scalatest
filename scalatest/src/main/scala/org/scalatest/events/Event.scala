@@ -151,7 +151,7 @@ sealed abstract class Event extends Ordered[Event] with Product with Serializabl
           <depth>{ getThrowableStackDepth(throwable) }</depth>
           <stackTraces>
             {
-              val stackTraces = throwable.getStackTrace
+              val stackTraces = throwable.getStackTrace.map(_.nn)
               for (stackTrace <- stackTraces) yield {
                 <stackTrace>
                   <className>{ stackTrace.getClassName }</className>
@@ -250,8 +250,10 @@ sealed abstract class Event extends Ordered[Event] with Product with Serializabl
       }
     }
 
-    def stackTrace(st: StackTraceElement): String =
+    def stackTrace(_st: StackTraceElement | Null): String = {
+      val st = _st.nn
       s"""{ "className": ${stringOption(Option(st.getClassName))}, "methodName": ${stringOption(Option(st.getMethodName))}, "fileName": ${stringOption(Option(st.getFileName))}, "lineNumber": ${st.getLineNumber}, "isNative": ${st.isNativeMethod}, "toString": ${stringOption(Option(st.toString))} }"""
+    }
 
     def throwableOption(throwableOption: Option[Throwable]) = {
       throwableOption match {

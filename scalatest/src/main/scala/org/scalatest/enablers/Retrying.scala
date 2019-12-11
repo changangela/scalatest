@@ -59,7 +59,7 @@ object Retrying {
   private lazy val scheduler: ScheduledExecutorService = {
     val threadFactory = new ThreadFactory {
       val inner = Executors.defaultThreadFactory()
-      def newThread(runnable: Runnable) = {
+      def newThread(runnable: Runnable | Null) = {
         val thread = inner.newThread(runnable)
         thread.setDaemon(true)
         thread

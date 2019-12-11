@@ -112,7 +112,7 @@ private[scalatest] class DashboardReporter(directory: String,
   //
   // Throws exception for specified unexpected event.
   //
-  def unexpectedEvent(e: Event): Unit = {
+  def unexpectedEvent(e: Event | Null): Unit = {
     throw new RuntimeException("unexpected event [" + e + "]")
   }
 
@@ -187,7 +187,7 @@ private[scalatest] class DashboardReporter(directory: String,
   //
   def purgeDir(directory: File, prefix: String): Unit = {
     directory.
-      listFiles().
+      listFiles().map(_.nn).
       filter(_.getName.matches(prefix + TimestampPattern + """\.xml""")).
       sorted.
       dropRight(numOldFilesToKeep).
@@ -513,8 +513,8 @@ private[scalatest] class DashboardReporter(directory: String,
   //
   def writeRunFile(event: Event, thisRunFile: File): Unit = {
     index = 0
-    var suiteRecord: SuiteRecord = null
-    val stack = new Stack[SuiteRecord]
+    var suiteRecord: SuiteRecord | Null = null
+    val stack = new Stack[SuiteRecord | Null]
     val pw =
       new PrintWriter(
         new BufferedOutputStream(
@@ -557,14 +557,14 @@ private[scalatest] class DashboardReporter(directory: String,
     // in.  Otherwise its xml is written to the output file.
     //
     def endSuite(e: Event): Unit = {
-      suiteRecord.addEndEvent(e)
+      suiteRecord.nn.addEndEvent(e)
 
       val prevRecord = stack.pop()
 
       if (prevRecord != null)
         prevRecord.addNestedElement(suiteRecord)
       else
-        pw.print(suiteRecord.toXml)
+        pw.print(suiteRecord.nn.toXml)
 
       suiteRecord = prevRecord
     }
@@ -581,12 +581,12 @@ private[scalatest] class DashboardReporter(directory: String,
           stack.push(suiteRecord)
           suiteRecord = new SuiteRecord(e)
           
-        case e: TestStarting   => suiteRecord.addNestedElement(e)
-        case e: TestSucceeded  => suiteRecord.addNestedElement(e)
-        case e: TestIgnored    => suiteRecord.addNestedElement(e)
-        case e: TestFailed     => suiteRecord.addNestedElement(e)
-        case e: TestPending    => suiteRecord.addNestedElement(e)
-        case e: TestCanceled   => suiteRecord.addNestedElement(e)
+        case e: TestStarting   => suiteRecord.nn.addNestedElement(e)
+        case e: TestSucceeded  => suiteRecord.nn.addNestedElement(e)
+        case e: TestIgnored    => suiteRecord.nn.addNestedElement(e)
+        case e: TestFailed     => suiteRecord.nn.addNestedElement(e)
+        case e: TestPending    => suiteRecord.nn.addNestedElement(e)
+        case e: TestCanceled   => suiteRecord.nn.addNestedElement(e)
 
         case e: SuiteCompleted => endSuite(e)
         case e: SuiteAborted   => endSuite(e)
@@ -646,7 +646,7 @@ private[scalatest] class DashboardReporter(directory: String,
   //
   class SuiteRecord(startEvent: SuiteStarting) {
     var nestedElements = List[Any]()
-    var endEvent: Event = null
+    var endEvent: Event | Null = null
 
     //
     // Adds either an Event or a nested SuiteRecord to this object's
@@ -691,13 +691,13 @@ private[scalatest] class DashboardReporter(directory: String,
     //
     def toXml: String = {
       val buf = new StringBuilder
-      var testRecord: TestRecord = null
+      var testRecord: TestRecord | Null = null
 
       //
       // Generates opening <suite ...> element
       //
       def formatStartOfSuite: String = {
-        val duration = endEvent.timeStamp - startEvent.timeStamp
+        val duration = endEvent.nn.timeStamp - startEvent.timeStamp
         "\n" +
         "<suite index=\"" + nextIndex()                   + "\" " +
         "id=\""           + startEvent.suiteId            + "\" " +
@@ -712,7 +712,7 @@ private[scalatest] class DashboardReporter(directory: String,
       // event processing.
       //
       def inATest: Boolean =
-        (testRecord != null) && (testRecord.endEvent == null)
+        (testRecord != null) && (testRecord.nn.endEvent == null)
 
       //
       // toXml main
@@ -722,10 +722,10 @@ private[scalatest] class DashboardReporter(directory: String,
 
       for (element <- nestedElements.reverse) {
         if (inATest) {
-          testRecord.addEvent(element.asInstanceOf[Event])
+          testRecord.nn.addEvent(element.asInstanceOf[Event])
 
-          if (testRecord.isComplete)
-            buf.append(testRecord.toXml)
+          if (testRecord.nn.isComplete)
+            buf.append(testRecord.nn.toXml)
         }
         else {
           element match {
@@ -756,7 +756,7 @@ private[scalatest] class DashboardReporter(directory: String,
   // so nested events within the TestRecord have been removed.)
   //
   class TestRecord(startEvent: TestStarting) {
-    var endEvent: Event = null
+    var endEvent: Event | Null = null
 
     //
     // Adds specified event to object's list of nested events.
@@ -819,12 +819,12 @@ private[scalatest] class DashboardReporter(directory: String,
       val duration = 
         endEvent match {
           case Duration(d) => d
-          case _ => endEvent.timeStamp - startEvent.timeStamp
+          case _ => endEvent.nn.timeStamp - startEvent.nn.timeStamp
         }
 
       "<test index=\"" + nextIndex()                 + "\" " +
       "result=\""      + result                      + "\" " +
-      "text=\""        + testMessage(startEvent.testName, endEvent.formatter) +
+      "text=\""        + testMessage(startEvent.testName, endEvent.nn.formatter) +
       "\" " +
       "name=\""        + escape(startEvent.testName) + "\" " +
       "duration=\""    + duration                    + "\" " +
@@ -853,7 +853,7 @@ private[scalatest] class DashboardReporter(directory: String,
       
       if (event.throwable.isDefined) {
         val throwable = event.throwable.get
-        val stackTrace = throwable.getStackTrace
+        val stackTrace = throwable.getStackTrace.map(_.nn)
         require(stackTrace.size > 0)
 
         // PCData will enclose the message in CDATA.

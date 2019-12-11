@@ -67,22 +67,26 @@ private[scalatest] object MatchersHelper {
     val methodNameStartsWithVowel = firstChar == 'a' || firstChar == 'e' || firstChar == 'i' ||
       firstChar == 'o' || firstChar == 'u'
 
-    def isFieldToAccess(field: Field): Boolean = field.getName == fieldNameToAccess
+    def isFieldToAccess(field: Field | Null): Boolean = field.nn.getName == fieldNameToAccess
 
     // If it is a predicate, I check the result type, otherwise I don't. Maybe I should just do that. Could be a later enhancement.
-    def isMethodToInvoke(method: Method): Boolean =
+    def isMethodToInvoke(_method: Method | Null): Boolean = {
+      val method = _method.nn
       method.getName == methodNameToInvoke && method.getParameterTypes.length == 0 && !Modifier.isStatic(method.getModifiers()) &&
         (!isBooleanProperty || method.getReturnType == classOf[Boolean])
+    }
 
-    def isGetMethodToInvoke(method: Method): Boolean =
+    def isGetMethodToInvoke(_method: Method | Null): Boolean = {
+      val method = _method.nn
       method.getName == methodNameToInvokeWithGet && method.getParameterTypes.length == 0 && !Modifier.isStatic(method.getModifiers()) &&
         (!isBooleanProperty || method.getReturnType == classOf[Boolean])
+    }
 
-    val fieldOption = objectWithProperty.getClass.getFields.find(isFieldToAccess)
+    val fieldOption = objectWithProperty.getClass.getFields.map(_.nn).find(isFieldToAccess)
 
-    val methodOption = objectWithProperty.getClass.getMethods.find(isMethodToInvoke)
+    val methodOption = objectWithProperty.getClass.getMethods.map(_.nn).find(isMethodToInvoke)
 
-    val getMethodOption = objectWithProperty.getClass.getMethods.find(isGetMethodToInvoke)
+    val getMethodOption = objectWithProperty.getClass.getMethods.map(_.nn).find(isGetMethodToInvoke)
 
     (fieldOption, methodOption, getMethodOption) match {
 

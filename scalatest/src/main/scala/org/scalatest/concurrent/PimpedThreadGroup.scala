@@ -74,7 +74,7 @@ private[concurrent] class PimpedThreadGroup(threadGroup: ThreadGroup) {
   def getThreads(recursive: Boolean): List[Thread] = {
     def getThreads(sizeEstimate: Int): Seq[Thread] = {
       val ths = new Array[Thread](sizeEstimate)
-      if (threadGroup.enumerate(ths, recursive) == sizeEstimate) getThreads(sizeEstimate + 10)
+      if (threadGroup.enumerate(ths.asInstanceOf[Array[Thread | Null]], recursive) == sizeEstimate) getThreads(sizeEstimate + 10)
       else for (t <- ths; if (t != null)) yield t
     }
     getThreads(threadGroup.activeCount() + 10).toList
